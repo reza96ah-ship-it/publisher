@@ -128,3 +128,4 @@ export async function loadWorkspaceOverview(): Promise<WorkspaceOverview> {
     rubika: rubikaResponse.ok ? await rubikaResponse.json() : null
   };
 }
+

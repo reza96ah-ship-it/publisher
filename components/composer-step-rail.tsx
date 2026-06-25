@@ -19,7 +19,15 @@ const dotClasses: Record<ComposerStep["state"], string> = {
   pending: "border-slate-300 bg-white text-slate-400"
 };
 
-export function ComposerStepRail({ steps }: { steps: ComposerStep[] }) {
+export function ComposerStepRail({
+  steps,
+  activeStep,
+  onStepClick
+}: {
+  steps: ComposerStep[];
+  activeStep?: number;
+  onStepClick?: (index: number) => void;
+}) {
   const completed = steps.filter((step) => step.state === "done").length;
 
   return (
@@ -31,11 +39,23 @@ export function ComposerStepRail({ steps }: { steps: ComposerStep[] }) {
       <ol className="grid gap-1 px-3 py-2 lg:grid-cols-4">
         {steps.map((step, index) => {
           const Icon = step.icon;
+          const isCurrentActive = activeStep === index;
+          const isClickable = Boolean(onStepClick);
 
           return (
-            <li key={step.label} className={`relative flex gap-3 rounded-md px-1 py-2.5 transition lg:bg-white/60 lg:px-2 ${stateClasses[step.state]}`}>
+            <li
+              key={step.label}
+              onClick={() => isClickable && onStepClick?.(index)}
+              className={`relative flex gap-3 rounded-md px-1 py-2.5 transition lg:px-2 ${
+                isCurrentActive
+                  ? "bg-blue-50/50 text-app-primary ring-1 ring-blue-100/30"
+                  : stateClasses[step.state]
+              } ${isClickable ? "cursor-pointer hover:bg-slate-50/50" : ""}`}
+            >
               {index < steps.length - 1 ? <span className="absolute right-[15px] top-9 h-[calc(100%-0.75rem)] border-r border-dashed border-slate-300 lg:hidden" /> : null}
-              <span className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-black ${dotClasses[step.state]}`}>
+              <span className={`relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 text-[10px] font-black ${
+                isCurrentActive ? "border-app-primary bg-app-primary text-white" : dotClasses[step.state]
+              }`}>
                 {step.state === "done" ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : index + 1}
               </span>
               <div className="min-w-0 flex-1 pt-0.5">
@@ -52,3 +72,4 @@ export function ComposerStepRail({ steps }: { steps: ComposerStep[] }) {
     </section>
   );
 }
+

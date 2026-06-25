@@ -34,3 +34,4 @@ export function PublishingWorkspaceHeader({
     </section>
   );
 }
+

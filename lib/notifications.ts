@@ -82,3 +82,4 @@ export async function loadOperationalNotifications(): Promise<OperationalNotific
   if (!response.ok) return emptyOperationalNotifications;
   return response.json();
 }
+

@@ -1,4 +1,5 @@
-"use client";import {
+"use client";
+import {
   AlertCircle,
   BellRing,
   ChevronDown,
@@ -169,65 +170,65 @@ import { productName } from "../lib/product";export function AppShell({ children
       <div ref={scrollRootRef} data-app-scroll-root className="flex h-full min-h-0 overflow-y-auto overscroll-contain scroll-smooth">
         <Sidebar storeName={workspaceName} ready={shellReady} brandColor={brandColor} avatarUrl={brandImageUrl} />      
         <section className="nahrino-shell flex min-h-full min-w-0 flex-1 flex-col">
-          <header className="nahrino-topbar sticky top-0 z-20 shrink-0">
-            <div className="flex min-h-[58px] items-center justify-between gap-3 px-3 py-2 lg:px-5">
+          <header className="sticky top-0 z-20 shrink-0 bg-white/70 backdrop-blur-2xl border-b border-slate-200/60 supports-[backdrop-filter]:bg-white/40">
+            <div className="flex min-h-[64px] items-center justify-between gap-3 px-4 lg:px-8">
               <div className="flex min-w-0 items-center gap-3">
                 <Link href="/" className="lg:hidden" aria-label={productName}>
                   <ProductMark />
                 </Link>
-                <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-md border border-app-border bg-app-surface text-app-primary shadow-hairline lg:flex" style={brandColor ? { color: brandColor } : undefined}>       
-                  <ActiveNavIcon className="h-4 w-4" aria-hidden="true" />
+                <span className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-app-primary/10 to-app-primary/5 text-app-primary shadow-sm ring-1 ring-app-primary/20 lg:flex" style={brandColor ? { color: brandColor } : undefined}>       
+                  <ActiveNavIcon className="h-4 w-4" aria-hidden="true" strokeWidth={2.5} />
                 </span>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1 text-[10px] font-bold text-app-muted">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-slate-400">
                     <span>{activeNav.group.title}</span>
                     <ChevronLeft className="h-3 w-3" aria-hidden="true" />
                     <span className="truncate text-app-primary">{activeNav.item.label}</span>
                   </div>
-                  <p className="mt-0.5 truncate text-sm font-black text-app-text">{activeNav.item.label}</p>
+                  <p className="mt-0.5 truncate text-[15px] font-black tracking-tight text-slate-900">{activeNav.item.label}</p>
                 </div>
               </div>
 
-              <div className="flex min-w-0 items-center gap-2">
+              <div className="flex min-w-0 items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setCommandPaletteOpen(true)}
-                  className="app-interactive hidden h-9 min-w-0 items-center gap-2 rounded-md border border-app-border bg-app-surface/90 px-3 text-xs text-app-muted shadow-hairline hover:bg-app-surface hover:text-app-primary md:flex md:w-56 xl:w-72"
+                  className="hidden h-[38px] min-w-0 items-center gap-2.5 rounded-xl border border-slate-200/60 bg-slate-50/50 px-3.5 text-[13px] text-slate-500 shadow-sm transition-all hover:bg-slate-100 hover:text-slate-900 md:flex md:w-64 xl:w-80"
                   aria-label="باز کردن جست‌وجو و دسترسی سریع"
                 >
-                  <Search className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                  <span className="truncate">جست‌وجوی پست، مسیر یا کمپین</span>
-                  <span className="mr-auto hidden rounded border border-app-border bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-400 xl:inline">Ctrl K</span>
+                  <Search className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="truncate font-medium">جست‌وجوی پست، مسیر یا کمپین...</span>
+                  <span className="mr-auto hidden rounded-md border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-400 xl:inline shadow-sm">Ctrl K</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setCommandPaletteOpen(true)}
-                  className="app-interactive flex h-9 w-9 items-center justify-center rounded-md border border-app-border bg-app-surface/90 text-app-muted shadow-hairline hover:bg-app-surface hover:text-app-primary md:hidden"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/60 bg-slate-50/50 text-slate-500 shadow-sm transition-all hover:bg-slate-100 hover:text-slate-900 md:hidden"
                   aria-label="باز کردن جست‌وجو و دسترسی سریع"
                 >
-                  <Search className="h-4 w-4" aria-hidden="true" />
+                  <Search className="h-[18px] w-[18px]" aria-hidden="true" />
                 </button>
 
                 {showAttentionAction ? (
                   <Link
                     href={attentionHref}
-                    className="app-interactive hidden h-9 items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 text-xs font-bold text-amber-800 shadow-hairline hover:bg-amber-100 lg:flex"
+                    className="hidden h-10 items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 text-[13px] font-bold text-amber-700 shadow-sm transition-all hover:bg-amber-100 lg:flex"
                   >
-                    {!rubikaReady && storeReady ? <Network className="h-3.5 w-3.5" aria-hidden="true" /> : <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />}
+                    {!rubikaReady && storeReady ? <Network className="h-4 w-4" aria-hidden="true" /> : <AlertCircle className="h-4 w-4" aria-hidden="true" />}
                     {attentionLabel}
                   </Link>
                 ) : null}
 
                 <Link
                   href="/inbox"
-                  className="app-interactive relative flex h-9 w-9 items-center justify-center rounded-md border border-app-border bg-app-surface/90 text-app-muted shadow-hairline hover:bg-app-surface hover:text-app-coral"
+                  className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200/60 bg-slate-50/50 text-slate-500 shadow-sm transition-all hover:bg-slate-100 hover:text-app-primary"
                   aria-label={notificationCount ? `${notificationCount} اعلان عملیاتی خوانده‌نشده` : "صندوق عملیات انتشار"}
                 >
-                  <BellRing className="h-4 w-4" aria-hidden="true" />
-                  <span className={`absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full ring-2 ring-white ${liveNotificationsReady ? "bg-emerald-500" : "bg-slate-300"}`} aria-label={liveNotificationsReady ? "اعلان زنده فعال" : "اعلان زنده در حال اتصال"} />
+                  <BellRing className="h-[18px] w-[18px]" aria-hidden="true" />
+                  <span className={`absolute bottom-2 right-2 h-2 w-2 rounded-full ring-2 ring-white ${liveNotificationsReady ? "bg-emerald-500" : "bg-slate-300"}`} aria-label={liveNotificationsReady ? "اعلان زنده فعال" : "اعلان زنده در حال اتصال"} />
                   {notificationCount ? (
-                    <span className="absolute -left-1 -top-1 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-1 text-[9px] font-black text-white">
+                    <span className="absolute -left-1 -top-1 flex min-h-[18px] min-w-[18px] items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-black text-white shadow-sm ring-2 ring-white">
                       {notificationCount > 9 ? "9+" : notificationCount}
                     </span>
                   ) : null}
@@ -237,41 +238,42 @@ import { productName } from "../lib/product";export function AppShell({ children
                   <button
                     type="button"
                     onClick={() => setAccountMenuOpen((current) => !current)}
-                    className="app-interactive flex h-9 items-center gap-2 rounded-md border border-app-border bg-app-surface/90 px-2 text-xs font-bold text-app-muted shadow-hairline hover:bg-app-surface hover:text-app-primary"
+                    className="flex h-10 items-center gap-2 rounded-xl border border-slate-200/60 bg-slate-50/50 px-2 text-[13px] font-bold text-slate-600 shadow-sm transition-all hover:bg-slate-100 hover:text-slate-900"
                     aria-label="منوی حساب کاربری"
                     aria-expanded={accountMenuOpen}
                   >
-                    <WorkspaceAvatar name={workspaceName} size="sm" color={brandColor} imageUrl={brandImageUrl} className="h-6 w-6 rounded" />
-                    <span className="hidden xl:inline">{workspaceName}</span>
-                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+                    <WorkspaceAvatar name={workspaceName} size="sm" color={brandColor} imageUrl={brandImageUrl} className="h-7 w-7 rounded-lg ring-2 ring-white shadow-sm" />
+                    <span className="hidden xl:inline pr-1">{workspaceName}</span>
+                    <ChevronDown className="h-4 w-4 text-slate-400" aria-hidden="true" />
                   </button>
 
                   {accountMenuOpen ? (
-                    <div className="app-popover app-studio-panel absolute left-0 top-11 w-64 overflow-hidden rounded-lg">
-                      <div className="border-b border-app-border px-3 py-3">
-                        <div className="flex items-center gap-2">
-                          <WorkspaceAvatar name={workspaceName} color={brandColor} imageUrl={brandImageUrl} />
+                    <div className="absolute left-0 top-[48px] w-[280px] overflow-hidden rounded-2xl border border-slate-200/60 bg-white/95 backdrop-blur-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] ring-1 ring-black/5 animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+                      <div className="border-b border-slate-100 px-4 py-4 bg-slate-50/50">
+                        <div className="flex items-center gap-3">
+                          <WorkspaceAvatar name={workspaceName} color={brandColor} imageUrl={brandImageUrl} className="h-10 w-10 ring-2 ring-white shadow-sm" />
                           <div className="min-w-0">
-                            <p className="flex items-center gap-1.5 text-xs font-black text-app-text"><Sparkles className="h-3.5 w-3.5 text-app-teal" aria-hidden="true" />مدیر فضای کاری</p>
-                            <p className="mt-1 truncate text-[11px] text-app-muted">{workspaceName}</p>
+                            <p className="flex items-center gap-1.5 text-[13px] font-black text-slate-900"><Sparkles className="h-3.5 w-3.5 text-app-primary" aria-hidden="true" />مدیر فضای کاری</p>
+                            <p className="mt-0.5 truncate text-[11px] font-medium text-slate-500">{workspaceName}</p>
                           </div>
                         </div>
                       </div>
-                      <div className="p-1.5">
-                        <Link href="/store" className="app-interactive flex items-center gap-2 rounded px-2.5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-app-text">
-                          <Settings2 className="h-3.5 w-3.5" aria-hidden="true" />
+                      <div className="p-2">
+                        <Link href="/store" className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-bold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900">
+                          <Settings2 className="h-4 w-4 text-slate-400" aria-hidden="true" />
                           تنظیمات فضای کاری
                         </Link>
-                        <Link href="/channels" className="app-interactive flex items-center gap-2 rounded px-2.5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 hover:text-app-text">
-                          <Network className="h-3.5 w-3.5" aria-hidden="true" />
+                        <Link href="/channels" className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-bold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900">
+                          <Network className="h-4 w-4 text-slate-400" aria-hidden="true" />
                           مدیریت کانال‌ها
                         </Link>
+                        <div className="my-1 h-px bg-slate-100 mx-2" />
                         <button
                           type="button"
                           onClick={logout}
-                          className="app-interactive flex w-full items-center gap-2 rounded px-2.5 py-2 text-right text-xs font-bold text-rose-700 hover:bg-rose-50"
+                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-right text-[13px] font-bold text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700"
                         >
-                          <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+                          <LogOut className="h-4 w-4 text-rose-500" aria-hidden="true" />
                           خروج از حساب
                         </button>
                       </div>

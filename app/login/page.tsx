@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { productName, productTagline } from "../../lib/product";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -87,3 +87,4 @@ export default function LoginPage() {
     </main>
   );
 }
+

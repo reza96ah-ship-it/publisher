@@ -25,7 +25,7 @@ export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
 type NativeButtonType = NonNullable<ButtonHTMLAttributes<HTMLButtonElement>["type"]>;
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "nahrino-primary-cta border border-app-primary text-white shadow-accent hover:border-app-primaryHover hover:bg-app-primaryHover active:bg-app-primaryActive",
+  primary: "nashrino-primary-cta border border-app-primary text-white shadow-accent hover:border-app-primaryHover hover:bg-app-primaryHover active:bg-app-primaryActive",
   secondary: "border border-app-border bg-app-surface/88 text-app-text shadow-hairline backdrop-blur-md hover:border-app-primary/24 hover:bg-app-soft hover:text-app-primary",
   tertiary: "border border-transparent bg-transparent text-app-primary hover:bg-app-soft active:bg-white/60",
   destructive: "border border-rose-200 bg-rose-50/88 text-rose-700 shadow-hairline hover:bg-rose-100 active:bg-rose-200",
@@ -44,7 +44,7 @@ const sizeStyles: Record<ButtonSize, string> = {
 export function Button(props: ButtonProps) {
   const { variant = "primary", size = "md", className = "", children } = props;
   const classes = cn(
-    "app-interactive nahrino-control-radius inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60",
+    "app-interactive nashrino-control-radius inline-flex items-center justify-center gap-2 whitespace-nowrap font-bold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-app-primary/30 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60",
     variantStyles[variant],
     sizeStyles[size],
     className
@@ -75,3 +75,4 @@ export function Button(props: ButtonProps) {
     </button>
   );
 }
+

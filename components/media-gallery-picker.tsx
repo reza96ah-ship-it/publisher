@@ -1,4 +1,3 @@
-"use client";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Folder, Hash, ImageIcon, Link2, Search } from "lucide-react";
 import { Skeleton } from "./loading-skeleton";
@@ -208,3 +207,4 @@ export function MediaGalleryPicker({ assets, campaigns = [], posts = [], preview
     </div>
   );
 }
+

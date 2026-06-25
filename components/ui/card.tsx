@@ -28,3 +28,4 @@ export function SectionCard({ title, description, action, children, className = 
 export function SurfaceCard({ children, className = "" }: { children: ReactNode; className?: string }) {
   return <div className={`app-studio-surface rounded-lg p-4 ${className}`}>{children}</div>;
 }
+

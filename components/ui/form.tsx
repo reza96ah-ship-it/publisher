@@ -23,7 +23,7 @@ export function Field({ label, hint, error, required, children }: FieldProps) {
 }
 
 const controlClassName =
-  "w-full rounded-md border border-app-border bg-white px-3.5 py-2.5 text-sm text-app-text shadow-[0_1px_2px_rgba(38,75,88,0.035)] outline-none transition placeholder:text-slate-400 focus:border-app-primary focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400";
+  "w-full rounded-md border border-app-border bg-white px-3.5 py-2.5 text-base md:text-sm text-app-text shadow-[0_1px_2px_rgba(38,75,88,0.035)] outline-none transition placeholder:text-slate-400 focus:border-app-primary focus:ring-2 focus:ring-blue-100 disabled:bg-slate-50 disabled:text-slate-400";
 
 export function Input({ className = "", ...props }: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={`${controlClassName} ${className}`} {...props} />;
@@ -36,3 +36,4 @@ export function Textarea({ className = "", ...props }: TextareaHTMLAttributes<HT
 export function Select({ className = "", ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   return <select className={`${controlClassName} ${className}`} {...props} />;
 }
+

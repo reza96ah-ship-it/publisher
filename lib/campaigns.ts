@@ -158,3 +158,4 @@ export async function assignPostsToCampaign(postIds: number[], campaignId: numbe
   if (!response.ok) throw new Error("اتصال گروهی پست‌ها به کمپین ناموفق بود");
   return response.json();
 }
+

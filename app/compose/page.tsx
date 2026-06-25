@@ -14,6 +14,8 @@ import { MediaGalleryPicker } from "../../components/media-gallery-picker";
 import { MediaImageEditor } from "../../components/media-image-editor";
 import { ComposerSchedulePanel } from "../../components/composer-schedule-panel";
 import { ComposerStepRail, type ComposerStep } from "../../components/composer-step-rail";
+import { InstagramPostPreview } from "../../components/instagram-post-preview";
+import { NInspectorDrawer } from "../../components/nashrino-ui";
 import { StatusBadge } from "../../components/status-badge";
 import { useToast } from "../../components/toast-provider";
 import { Button } from "../../components/ui/button";
@@ -26,7 +28,7 @@ import { channelOptions, hasChannel, normalizeChannels, serializeChannels, type 
 import { approvalBlocksPublishing, approvalConfig } from "../../lib/posts";
 import { loadWorkspaceOverview, type StoreProfile } from "../../lib/workspace";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 const scheduleTimezone = "Asia/Tehran";
 const localDraftKey = "rubika_publisher_compose_draft";
 
@@ -70,6 +72,21 @@ type Post = {
   reviewed_by: string;
 };
 
+type InstagramAutomationRule = {
+  id: number;
+  name: string;
+  post_id: number | null;
+  is_template: boolean;
+  status: string;
+  trigger_keywords: string[];
+  trigger_type: string;
+  private_reply_message: string;
+  public_reply_enabled: boolean;
+  public_reply_message: string;
+  on_customer_reply: string;
+  waiting_reply_message: string | null;
+};
+
 const emptyForm = {
   title: "",
   caption: "",
@@ -85,9 +102,9 @@ const emptyForm = {
 function ComposePageContent() {
   const { showToast } = useToast();
   const searchParams = useSearchParams();
-  const editingPostId = searchParams?.get("postId") ?? null;
-  const presetScheduledAt = searchParams?.get("scheduledAt") ?? null;
-  const presetCampaignId = searchParams?.get("campaignId") ?? null;
+  const editingPostId = searchParams.get("postId");
+  const presetScheduledAt = searchParams.get("scheduledAt");
+  const presetCampaignId = searchParams.get("campaignId");
   const isEditing = Boolean(editingPostId);
 
   const [store, setStore] = useState<StoreProfile | null>(null);
@@ -110,12 +127,47 @@ function ComposePageContent() {
   const [autosaveAt, setAutosaveAt] = useState("");
   const [studioPanel, setStudioPanel] = useState<StudioPanel>("preview");
   const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>("content");
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
+  const [previewChannel, setPreviewChannel] = useState<PublishingChannel>("rubika");
+  const [instagramPreviewMode, setInstagramPreviewMode] = useState<"feed" | "story" | "reel">("feed");
+  const [isCampaignDrawerOpen, setIsCampaignDrawerOpen] = useState(false);
+  const [isScheduleDrawerOpen, setIsScheduleDrawerOpen] = useState(false);
+
+  const handleStepClick = useCallback((index: number) => {
+    setActiveStepIndex(index);
+    if (index === 0) {
+      setWorkspaceMode("content");
+      setStudioPanel("preview");
+    } else if (index === 1) {
+      setWorkspaceMode("media");
+      setStudioPanel("preview");
+    } else if (index === 2) {
+      setWorkspaceMode("workflow");
+      setStudioPanel("schedule");
+    } else if (index === 3) {
+      setWorkspaceMode("workflow");
+      setStudioPanel("review");
+    }
+  }, []);
+
   const [quickCampaignName, setQuickCampaignName] = useState("");
   const [creatingCampaign, setCreatingCampaign] = useState(false);
   const [savingEditedImage, setSavingEditedImage] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const uploadInputRef = useRef<HTMLInputElement>(null);
+
+  // Instagram Comment Automation Rule Builder State
+  const [autoReplyEnabled, setAutoReplyEnabled] = useState(false);
+  const [automationRuleId, setAutomationRuleId] = useState<number | null>(null);
+  const [triggerKeywords, setTriggerKeywords] = useState("");
+  const [triggerType, setTriggerType] = useState("exact");
+  const [privateReplyMessage, setPrivateReplyMessage] = useState("");
+  const [publicReplyEnabled, setPublicReplyEnabled] = useState(false);
+  const [publicReplyMessage, setPublicReplyMessage] = useState("");
+  const [onCustomerReply, setOnCustomerReply] = useState("hand_off");
+  const [waitingReplyMessage, setWaitingReplyMessage] = useState("");
+  const [templates, setTemplates] = useState<InstagramAutomationRule[]>([]);
 
   const selectedMedia = useMemo(() => {
     if (!selectedMediaId) return null;
@@ -135,6 +187,29 @@ function ComposePageContent() {
       .filter(Boolean)
       .join("\n\n");
   }, [form.caption, form.hashtags, previewImageUrl, store?.caption_footer, store?.default_cta]);
+
+  const captionSuggestions = useMemo(() => {
+    if (!form.caption) return [];
+    const suggestions: string[] = [];
+    const numberMatches = form.caption.match(/(?:عدد|کلمه)\s*([0-9\u06f0-\u06f9]+)/i);
+    if (numberMatches && numberMatches[1]) {
+      suggestions.push(numberMatches[1]);
+    }
+    if (form.caption.includes("قیمت") || form.caption.includes("price")) {
+      suggestions.push("قیمت");
+    }
+    if (form.caption.includes("کاتالوگ") || form.caption.includes("catalog")) {
+      suggestions.push("کاتالوگ");
+    }
+    if (form.caption.includes("لینک") || form.caption.includes("link")) {
+      suggestions.push("لینک");
+    }
+    const digits = form.caption.match(/\b([0-9\u06f0-\u06f9]+)\b/);
+    if (digits && digits[1] && !suggestions.includes(digits[1])) {
+      suggestions.push(digits[1]);
+    }
+    return suggestions;
+  }, [form.caption]);
 
   const captionLength = form.caption.length;
   const hashtagCount = form.hashtags.split(/\s+/).filter((item) => item.startsWith("#")).length;
@@ -165,6 +240,11 @@ function ComposePageContent() {
     if (channelCanManualPublish(account)) return `${channel === "rubika" ? "روبیکا" : "اینستاگرام"} در حالت انتشار دستی/یادآوری آماده است.`;
     return `${channel === "rubika" ? "روبیکا" : "اینستاگرام"}: ${channelStatusLabel(account)}. ${account.limitations[0] ?? "برای ادامه، مرکز کانال‌ها را بررسی کنید."}`;
   });
+  const rubikaLengthValid = !rubikaSelected || captionLength <= 4000;
+  const instagramLengthValid = !instagramSelected || captionLength <= 2200;
+  const instagramMediaValid = !instagramSelected || Boolean(previewImageUrl);
+  const instagramAutomationValid = !autoReplyEnabled || (Boolean(triggerKeywords.trim()) && Boolean(privateReplyMessage.trim()));
+
   const readinessItems = [
     {
       label: "عنوان داخلی",
@@ -179,10 +259,34 @@ function ComposePageContent() {
       required: true
     },
     {
+      label: "طول متن روبیکا",
+      detail: rubikaLengthValid ? "طول متن در محدوده مجاز روبیکا است (کمتر از ۴۰۰۰ حرف)." : "متن برای روبیکا بسیار طولانی است (باید کمتر از ۴۰۰۰ حرف باشد).",
+      done: rubikaLengthValid,
+      required: rubikaSelected
+    },
+    {
+      label: "طول متن اینستاگرام",
+      detail: instagramLengthValid ? "طول متن در محدوده مجاز اینستاگرام است (کمتر از ۲۲۰۰ حرف)." : "متن برای اینستاگرام بسیار طولانی است (باید کمتر از ۲۲۰۰ حرف باشد).",
+      done: instagramLengthValid,
+      required: instagramSelected
+    },
+    {
+      label: "رسانه اینستاگرام",
+      detail: instagramMediaValid ? "تصویر برای پست اینستاگرام انتخاب شده است." : "پست اینستاگرام نیاز به حداقل یک تصویر دارد.",
+      done: instagramMediaValid,
+      required: instagramSelected
+    },
+    {
+      label: "تنظیمات تعامل خودکار",
+      detail: instagramAutomationValid ? "تنظیمات کلمات کلیدی و پاسخ دایرکت معتبر است." : "در صورت فعال بودن تعامل خودکار، کلمات کلیدی و پاسخ دایرکت الزامی است.",
+      done: instagramAutomationValid,
+      required: autoReplyEnabled
+    },
+    {
       label: "کانال روبیکا",
       detail: rubikaReady ? "روبیکا آماده انتشار خودکار است." : `روبیکا: ${channelStatusLabel(rubikaChannel)}`,
       done: !rubikaSelected || rubikaReady,
-      required: true
+      required: rubikaSelected
     },
     {
       label: "کانال انتشار",
@@ -234,25 +338,25 @@ function ComposePageContent() {
       label: "محتوا",
       helper: hasTitle && hasPostBody ? "عنوان و محتوای اصلی آماده است." : "عنوان داخلی و کپشن یا رسانه را کامل کنید.",
       icon: FileText,
-      state: hasTitle && hasPostBody ? "done" : "active"
+      state: activeStepIndex === 0 ? "active" : (hasTitle && hasPostBody ? "done" : "pending")
     },
     {
       label: "رسانه",
       helper: previewImageUrl ? "تصویر خروجی انتخاب شده است." : "رسانه اختیاری است؛ برای پست تصویری انتخاب کنید.",
       icon: Images,
-      state: previewImageUrl ? "done" : hasPostBody ? "active" : "pending"
+      state: activeStepIndex === 1 ? "active" : (previewImageUrl ? "done" : "pending")
     },
     {
       label: "زمان انتشار",
       helper: hasSchedule ? "تاریخ و ساعت ورود به صف مشخص است." : "برای انتشار خودکار، تاریخ و ساعت را انتخاب کنید.",
       icon: CalendarClock,
-      state: hasSchedule ? "done" : canMarkReady ? "active" : "pending"
+      state: activeStepIndex === 2 ? "active" : (hasSchedule ? "done" : "pending")
     },
     {
       label: "بازبینی نهایی",
       helper: !hasReadyPublishingChannel ? "حداقل یک کانال آماده برای زمان‌بندی لازم است." : instagramSelected && !instagramReady ? "اینستاگرام هنوز نیازمند اقدام است؛ کانال آماده دیگر می‌تواند ادامه دهد." : reviewBlocksSchedule ? "این پست قبل از زمان‌بندی باید تایید شود." : canSchedule ? "پست آماده ورود به صف انتشار است." : "پیش‌نمایش و الزام‌های انتشار را بررسی کنید.",
       icon: ShieldCheck,
-      state: canSchedule ? "done" : canMarkReady ? "active" : "pending"
+      state: activeStepIndex === 3 ? "active" : (canSchedule ? "done" : "pending")
     }
   ];
   const studioPanels: Array<{ label: string; value: StudioPanel; icon: typeof Eye; ready?: boolean }> = [
@@ -311,6 +415,41 @@ function ComposePageContent() {
 
       const attachedAsset = loadedMediaAssets.find((asset) => asset.post_id === post.id);
       setSelectedMediaId(attachedAsset ? String(attachedAsset.id) : "");
+
+      // Load automation rules and templates
+      try {
+        const rulesResponse = await fetch(`${apiUrl}/instagram/automation/rules`, { headers });
+        if (rulesResponse.ok) {
+          const rulesData = await rulesResponse.json();
+          const loadedTemplates = rulesData.rules?.filter((r: InstagramAutomationRule) => r.is_template) ?? [];
+          setTemplates(loadedTemplates);
+          
+          const existingRule = rulesData.rules?.find((r: InstagramAutomationRule) => String(r.post_id) === editingPostId) ?? null;
+          if (existingRule) {
+            setAutoReplyEnabled(existingRule.status === "active");
+            setAutomationRuleId(existingRule.id);
+            setTriggerKeywords(existingRule.trigger_keywords.join(", "));
+            setTriggerType(existingRule.trigger_type);
+            setPrivateReplyMessage(existingRule.private_reply_message);
+            setPublicReplyEnabled(existingRule.public_reply_enabled);
+            setPublicReplyMessage(existingRule.public_reply_message);
+            setOnCustomerReply(existingRule.on_customer_reply);
+            setWaitingReplyMessage(existingRule.waiting_reply_message ?? "");
+          } else {
+            setAutoReplyEnabled(false);
+            setAutomationRuleId(null);
+            setTriggerKeywords("");
+            setTriggerType("exact");
+            setPrivateReplyMessage("");
+            setPublicReplyEnabled(false);
+            setPublicReplyMessage("");
+            setOnCustomerReply("hand_off");
+            setWaitingReplyMessage("");
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load automation rule", e);
+      }
     } else {
       const presetCampaign = presetCampaignId ? loadedCampaigns.find((campaign) => String(campaign.id) === presetCampaignId) ?? null : null;
       let restoredDraft: { form: typeof emptyForm; selectedMediaId: string; savedAt: string } | null = null;
@@ -336,6 +475,28 @@ function ComposePageContent() {
         setAutosaveState("restored");
         setAutosaveAt(restoredDraft.savedAt);
       }
+
+      // Reset automation fields for new post, but load templates
+      setAutoReplyEnabled(false);
+      setAutomationRuleId(null);
+      setTriggerKeywords("");
+      setTriggerType("exact");
+      setPrivateReplyMessage("");
+      setPublicReplyEnabled(false);
+      setPublicReplyMessage("");
+      setOnCustomerReply("hand_off");
+      setWaitingReplyMessage("");
+
+      try {
+        const rulesResponse = await fetch(`${apiUrl}/instagram/automation/rules`, { headers });
+        if (rulesResponse.ok) {
+          const rulesData = await rulesResponse.json();
+          const loadedTemplates = rulesData.rules?.filter((r: InstagramAutomationRule) => r.is_template) ?? [];
+          setTemplates(loadedTemplates);
+        }
+      } catch (e) {
+        console.error("Failed to load automation templates", e);
+      }
     }
 
     setComposerReady(true);
@@ -348,6 +509,14 @@ function ComposePageContent() {
       setLoading(false);
     });
   }, [isEditing, loadData]);
+
+  useEffect(() => {
+    if (instagramSelected && !rubikaSelected) {
+      setPreviewChannel("instagram");
+    } else if (rubikaSelected && !instagramSelected) {
+      setPreviewChannel("rubika");
+    }
+  }, [instagramSelected, rubikaSelected]);
 
   useEffect(() => {
     if (!selectedFile) {
@@ -487,16 +656,22 @@ function ComposePageContent() {
 
   function startWithUpload() {
     setWorkspaceMode("media");
+    setActiveStepIndex(1);
     window.setTimeout(() => uploadInputRef.current?.click(), 0);
   }
 
   function startWithDefaults() {
     applyDefaults();
     setWorkspaceMode("content");
+    setActiveStepIndex(0);
     window.setTimeout(() => document.getElementById("composer-workspace")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
   }
 
   function resetComposer(options: { clearStatus?: boolean } = { clearStatus: true }) {
+    setActiveStepIndex(0);
+    setWorkspaceMode("content");
+    setStudioPanel("preview");
+
     if (editingPost) {
       setForm({
         title: editingPost.title,
@@ -712,6 +887,58 @@ function ComposePageContent() {
 
       await syncSelectedMedia(savedPost.id);
 
+      // Link or unlink Instagram Comment Automation Rule
+      if (instagramSelected && autoReplyEnabled) {
+        const keywordsArray = triggerKeywords.split(",").map(k => k.trim()).filter(Boolean);
+        if (keywordsArray.length === 0) {
+          throw new Error("برای فعال‌سازی تعامل خودکار، حداقل یک کلیدواژه لازم است.");
+        }
+        if (!privateReplyMessage.trim()) {
+          throw new Error("برای فعال‌سازی تعامل خودکار، متن پاسخ دایرکت لازم است.");
+        }
+
+        const rulePayload = {
+          name: `تعامل خودکار پست: ${savedPost.title}`,
+          status: "active",
+          trigger_type: triggerType,
+          trigger_keywords: keywordsArray,
+          private_reply_message: privateReplyMessage,
+          public_reply_enabled: publicReplyEnabled,
+          public_reply_message: publicReplyMessage,
+          campaign_id: form.campaign_id,
+          post_id: savedPost.id,
+          match_limit_per_hour: 60,
+          match_limit_total: 0,
+          is_template: false,
+          on_customer_reply: onCustomerReply,
+          waiting_reply_message: onCustomerReply === "send_waiting_message" ? waitingReplyMessage : ""
+        };
+
+        const ruleUrl = automationRuleId
+          ? `${apiUrl}/instagram/automation/rules/${automationRuleId}`
+          : `${apiUrl}/instagram/automation/rules`;
+
+        const ruleResponse = await fetch(ruleUrl, {
+          method: automationRuleId ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token()}`
+          },
+          body: JSON.stringify(rulePayload)
+        });
+
+        if (!ruleResponse.ok) {
+          const errData = await ruleResponse.json();
+          throw new Error(errData.detail || "ذخیره قانون تعامل خودکار اینستاگرام ناموفق بود");
+        }
+      } else if (automationRuleId) {
+        const ruleUrl = `${apiUrl}/instagram/automation/rules/${automationRuleId}`;
+        await fetch(ruleUrl, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token()}` }
+        });
+      }
+
       if (action === "schedule" && form.scheduled_at) {
         await schedulePost(savedPost.id, form.scheduled_at);
       } else if (action === "ready") {
@@ -763,6 +990,79 @@ function ComposePageContent() {
               onSave={saveEditedComposerImage}
             />
           ) : null}
+
+          {isCampaignDrawerOpen && (
+            <NInspectorDrawer
+              open={isCampaignDrawerOpen}
+              title="انتخاب کمپین"
+              description="اتصال پست به کمپین فعال یا ایجاد کمپین جدید."
+              onClose={() => setIsCampaignDrawerOpen(false)}
+            >
+              <div className="space-y-4">
+                <Field label="کمپین" hint={selectedCampaign?.goal || selectedCampaign?.notes || "هدف کمپین هنوز تعریف نشده است."}>
+                  <Select value={form.campaign_id ?? ""} onChange={(event) => selectCampaign(event.target.value)}>
+                    <option value="">بدون کمپین</option>
+                    {campaigns.map((campaign) => (
+                      <option key={campaign.id} value={campaign.id}>
+                        {campaign.name} · {campaign.post_count} پست
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+                <div className="grid gap-2">
+                  <label className="text-xs font-black text-app-text">ساخت کمپین جدید</label>
+                  <div className="flex gap-2">
+                    <Input value={quickCampaignName} onChange={(event) => setQuickCampaignName(event.target.value)} placeholder="مثلاً لانچ خرداد" />
+                    <Button type="button" variant="secondary" size="sm" onClick={quickCreateCampaign} disabled={creatingCampaign}>
+                      <Plus className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                      {creatingCampaign ? "در حال ساخت" : "ساخت"}
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="rounded-md bg-app-surfaceMuted/85 p-2.5 shadow-hairline mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowOptionalDetails((current) => !current)}
+                    className="flex w-full items-center justify-between gap-3 text-right"
+                    aria-expanded={showOptionalDetails}
+                  >
+                    <span className="flex min-w-0 items-center gap-2">
+                      <SlidersHorizontal className="h-4 w-4 shrink-0 text-app-primary" aria-hidden="true" />
+                      <span className="text-xs font-black text-app-text">یادداشت داخلی</span>
+                    </span>
+                    <ChevronDown className={`h-4 w-4 text-slate-500 transition ${showOptionalDetails ? "rotate-180" : ""}`} aria-hidden="true" />
+                  </button>
+                  {showOptionalDetails ? (
+                    <Textarea
+                      value={form.internal_note}
+                      onChange={(event) => updateField("internal_note", event.target.value)}
+                      className="mt-3 min-h-24"
+                      placeholder="نکته برای تیم، تایید مدیر یا دلیل زمان‌بندی..."
+                    />
+                  ) : null}
+                </div>
+              </div>
+            </NInspectorDrawer>
+          )}
+
+          {isScheduleDrawerOpen && (
+            <NInspectorDrawer
+              open={isScheduleDrawerOpen}
+              title="زمان‌بندی انتشار"
+              description="تاریخ و ساعت مورد نظر خود برای انتشار خودکار را مشخص کنید."
+              onClose={() => setIsScheduleDrawerOpen(false)}
+            >
+              <div className="p-1">
+                <ComposerSchedulePanel
+                  scheduledAt={form.scheduled_at}
+                  timezone={timezone}
+                  onChange={(value) => updateField("scheduled_at", value)}
+                />
+              </div>
+            </NInspectorDrawer>
+          )}
+
           <section className="nahrino-card relative overflow-hidden rounded-lg px-3 py-2.5 sm:px-4 sm:py-3">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(20,184,166,0.12),transparent_30%),radial-gradient(circle_at_78%_10%,rgba(59,130,246,0.10),transparent_28%)]" aria-hidden="true" />
             <div className="relative">
@@ -798,7 +1098,7 @@ function ComposePageContent() {
 
           <form onSubmit={saveDraft} className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_380px]">
             <section className="grid min-w-0 gap-3 xl:col-span-2 xl:grid-cols-[minmax(0,1fr)_340px]">
-              <ComposerStepRail steps={composerSteps} />
+              <ComposerStepRail steps={composerSteps} activeStep={activeStepIndex} onStepClick={handleStepClick} />
 
               <section className="app-studio-panel rounded-lg p-3">
                 <div className="flex items-center justify-between gap-2">
@@ -815,7 +1115,24 @@ function ComposePageContent() {
                       <button
                         key={card.label}
                         type="button"
-                        onClick={() => setWorkspaceMode("workflow")}
+                        onClick={() => {
+                          setWorkspaceMode("workflow");
+                          if (card.label === "کانال") {
+                            setActiveStepIndex(2);
+                          } else if (card.label === "کمپین") {
+                            setActiveStepIndex(2);
+                            if (window.innerWidth < 1024) {
+                              setIsCampaignDrawerOpen(true);
+                            }
+                          } else if (card.label === "زمان") {
+                            setActiveStepIndex(2);
+                            if (window.innerWidth < 1024) {
+                              setIsScheduleDrawerOpen(true);
+                            } else {
+                              setStudioPanel("schedule");
+                            }
+                          }
+                        }}
                         className="app-interactive group flex items-center gap-3 rounded-md border border-app-border bg-white/72 p-2.5 text-right shadow-hairline backdrop-blur transition hover:border-app-primary/25 hover:bg-white hover:shadow-soft"
                       >
                         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-app-soft text-app-primary transition group-hover:bg-app-primary group-hover:text-white">
@@ -854,7 +1171,18 @@ function ComposePageContent() {
                       <button
                         key={mode.value}
                         type="button"
-                        onClick={() => setWorkspaceMode(mode.value)}
+                        onClick={() => {
+                          setWorkspaceMode(mode.value);
+                          if (mode.value === "content") {
+                            setActiveStepIndex(0);
+                            setStudioPanel("preview");
+                          } else if (mode.value === "media") {
+                            setActiveStepIndex(1);
+                            setStudioPanel("preview");
+                          } else if (mode.value === "workflow") {
+                            setActiveStepIndex(studioPanel === "review" ? 3 : 2);
+                          }
+                        }}
                         className={`app-interactive flex min-w-0 items-center gap-2 rounded-md px-2.5 py-2 text-right transition ${
                           active ? "bg-white text-app-primary shadow-soft" : "text-app-muted hover:bg-white/75 hover:text-app-text"
                         }`}
@@ -876,7 +1204,7 @@ function ComposePageContent() {
 
                 <div className="p-3 sm:p-4">
                   {workspaceMode === "content" ? (
-                    <div id="composer-content" className="grid gap-3">
+                    <div id="composer-content" className={`grid gap-3 lg:grid ${activeStepIndex === 0 ? "grid" : "hidden"}`}>
                       <div className="rounded-md border border-white/70 bg-white/75 p-3 shadow-hairline backdrop-blur-xl">
                         <div className="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
                           <div>
@@ -919,17 +1247,17 @@ function ComposePageContent() {
                       </div>
 
                       <div className="grid gap-2 sm:grid-cols-3">
-                        <button type="button" onClick={() => setWorkspaceMode("media")} className="app-interactive rounded-md border border-app-border bg-white/70 p-3 text-right shadow-hairline hover:bg-white">
+                        <button type="button" onClick={() => handleStepClick(1)} className="app-interactive rounded-md border border-app-border bg-white/70 p-3 text-right shadow-hairline hover:bg-white">
                           <Images className="mb-2 h-4 w-4 text-app-primary" aria-hidden="true" />
                           <span className="block text-xs font-black text-app-text">افزودن رسانه</span>
                           <span className="mt-1 block text-[11px] leading-5 text-app-muted">{previewImageUrl ? "تصویر انتخاب شده است." : "از کتابخانه یا آپلود جدید."}</span>
                         </button>
-                        <button type="button" onClick={() => setWorkspaceMode("workflow")} className="app-interactive rounded-md border border-app-border bg-white/70 p-3 text-right shadow-hairline hover:bg-white">
+                        <button type="button" onClick={() => handleStepClick(2)} className="app-interactive rounded-md border border-app-border bg-white/70 p-3 text-right shadow-hairline hover:bg-white">
                           <Megaphone className="mb-2 h-4 w-4 text-app-primary" aria-hidden="true" />
                           <span className="block text-xs font-black text-app-text">کمپین و کانال</span>
                           <span className="mt-1 block text-[11px] leading-5 text-app-muted">{campaignLabel}</span>
                         </button>
-                        <button type="button" onClick={() => setStudioPanel("schedule")} className="app-interactive rounded-md border border-app-border bg-white/70 p-3 text-right shadow-hairline hover:bg-white">
+                        <button type="button" onClick={() => handleStepClick(2)} className="app-interactive rounded-md border border-app-border bg-white/70 p-3 text-right shadow-hairline hover:bg-white">
                           <CalendarClock className="mb-2 h-4 w-4 text-app-primary" aria-hidden="true" />
                           <span className="block text-xs font-black text-app-text">زمان انتشار</span>
                           <span className="mt-1 block text-[11px] leading-5 text-app-muted">{scheduleLabel}</span>
@@ -939,7 +1267,7 @@ function ComposePageContent() {
                   ) : null}
 
                   {workspaceMode === "media" ? (
-                    <div id="composer-media" className="grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)]">
+                    <div id="composer-media" className={`grid gap-3 lg:grid-cols-[220px_minmax(0,1fr)] ${activeStepIndex === 1 ? "grid" : "hidden"}`}>
                       <div className="space-y-3">
                         <label className="app-interactive block cursor-pointer rounded-md border border-dashed border-app-borderStrong bg-app-surfaceMuted p-3 hover:border-blue-300 hover:bg-blue-50">
                           <input
@@ -1032,7 +1360,19 @@ function ComposePageContent() {
                         ) : null}
                       </section>
 
-                      <section className="rounded-md border border-app-border bg-white/72 p-3 shadow-hairline backdrop-blur">
+                      {/* Mobile Campaign & Schedule Buttons */}
+                      <div className="lg:hidden grid gap-2 grid-cols-2">
+                        <Button type="button" variant="secondary" onClick={() => setIsCampaignDrawerOpen(true)} className="w-full">
+                          <Megaphone className="ml-1.5 h-4 w-4" aria-hidden="true" />
+                          کمپین: {campaignLabel}
+                        </Button>
+                        <Button type="button" variant="secondary" onClick={() => setIsScheduleDrawerOpen(true)} className="w-full">
+                          <CalendarClock className="ml-1.5 h-4 w-4" aria-hidden="true" />
+                          زمان: {scheduleLabel}
+                        </Button>
+                      </div>
+
+                      <section className="hidden lg:block rounded-md border border-app-border bg-white/72 p-3 shadow-hairline backdrop-blur">
                         <div className="mb-3 flex items-start justify-between gap-3">
                           <div>
                             <p className="text-sm font-black text-app-text">کمپین و یادداشت</p>
@@ -1093,10 +1433,212 @@ function ComposePageContent() {
                           </div>
                         </div>
                       </section>
+
+                      {instagramSelected ? (
+                        <section className="rounded-md border border-app-border bg-white/72 p-3 shadow-hairline backdrop-blur space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm font-black text-app-text">تعامل خودکار اینستاگرام (کامنت به دایرکت)</p>
+                              <p className="mt-1 text-xs leading-5 text-app-muted">ارسال خودکار پیام دایرکت و پاسخ به کامنت در صورت دریافت کلمه کلیدی.</p>
+                            </div>
+                            <label className="relative inline-flex cursor-pointer items-center">
+                              <input
+                                type="checkbox"
+                                checked={autoReplyEnabled}
+                                onChange={(e) => setAutoReplyEnabled(e.target.checked)}
+                                className="peer sr-only"
+                              />
+                              <div className="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-app-primary peer-checked:after:translate-x-full peer-focus:outline-none" />
+                            </label>
+                          </div>
+
+                          {autoReplyEnabled ? (
+                            <div className="mt-3 grid gap-3 border-t border-app-border pt-3">
+                              {templates.length > 0 ? (
+                                <div className="grid gap-2">
+                                  <label className="text-xs font-black text-app-text">انتخاب قالب آماده تعامل خودکار</label>
+                                  <select
+                                    className="app-input-style rounded-md border border-app-border bg-white px-3 py-2 text-xs"
+                                    onChange={async (e) => {
+                                      const val = e.target.value;
+                                      if (val) {
+                                        const rule = templates.find((t) => String(t.id) === val);
+                                        if (rule) {
+                                          setTriggerKeywords(rule.trigger_keywords.join(", "));
+                                          setTriggerType(rule.trigger_type);
+                                          setPrivateReplyMessage(rule.private_reply_message);
+                                          setPublicReplyEnabled(rule.public_reply_enabled);
+                                          setPublicReplyMessage(rule.public_reply_message);
+                                          setOnCustomerReply(rule.on_customer_reply);
+                                          setWaitingReplyMessage(rule.waiting_reply_message ?? "");
+                                        }
+                                      }
+                                    }}
+                                  >
+                                    <option value="">-- انتخاب از کتابخانه الگوها --</option>
+                                    {templates.map((tpl) => (
+                                      <option key={tpl.id} value={tpl.id}>
+                                        {tpl.name}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              ) : null}
+
+                              <div className="grid gap-3 lg:grid-cols-2">
+                                <Field label="کلمه کلیدی (کلیدواژه‌ها با کاما جدا شوند)" required hint="مثلاً: 5, قیمت, راهنمایی">
+                                  <Input
+                                    value={triggerKeywords}
+                                    onChange={(e) => setTriggerKeywords(e.target.value)}
+                                    placeholder="۵، قیمت، تخفیف"
+                                    required
+                                  />
+                                  {captionSuggestions.length > 0 ? (
+                                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-app-muted">
+                                      <span>💡 پیشنهادها بر اساس کپشن:</span>
+                                      {captionSuggestions.map((sug) => (
+                                        <button
+                                          key={sug}
+                                          type="button"
+                                          onClick={() => {
+                                            const current = triggerKeywords.trim();
+                                            const added = current ? `${current}, ${sug}` : sug;
+                                            const unique = Array.from(new Set(added.split(",").map(k => k.trim()).filter(Boolean))).join(", ");
+                                            setTriggerKeywords(unique);
+                                          }}
+                                          className="rounded-full bg-app-soft px-2 py-0.5 text-[10px] font-bold text-app-primary hover:bg-app-primary hover:text-white transition"
+                                        >
+                                          {sug} +
+                                        </button>
+                                      ))}
+                                    </div>
+                                  ) : null}
+                                </Field>
+
+                                <Field label="نوع تطابق کلیدواژه">
+                                  <Select value={triggerType} onChange={(e) => setTriggerType(e.target.value)}>
+                                    <option value="exact">تطابق دقیق کلمه</option>
+                                    <option value="contains">شامل کلمه</option>
+                                    <option value="any_of">هر کدام از کلمات</option>
+                                  </Select>
+                                </Field>
+                              </div>
+
+                              <Field label="پیام پاسخ خودکار دایرکت (DM)" required hint="این پیام به صورت خصوصی به دایرکت کاربر فرستاده می‌شود.">
+                                <Textarea
+                                  value={privateReplyMessage}
+                                  onChange={(e) => setPrivateReplyMessage(e.target.value)}
+                                  className="min-h-16"
+                                  placeholder="سلام! لینک خرید خدمت شما: https://example.com"
+                                  required
+                                />
+                              </Field>
+
+                              <div className="rounded-md border border-app-border bg-app-surfaceMuted/50 p-2.5 space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="checkbox"
+                                    id="publicReplyEnabled"
+                                    checked={publicReplyEnabled}
+                                    onChange={(e) => setPublicReplyEnabled(e.target.checked)}
+                                    className="rounded border-gray-300 text-app-primary focus:ring-app-primary h-4 w-4"
+                                  />
+                                  <label htmlFor="publicReplyEnabled" className="text-xs font-black text-app-text cursor-pointer">
+                                    پاسخ عمومی به کامنت کاربر فعال شود؟
+                                  </label>
+                                </div>
+                                {publicReplyEnabled ? (
+                                  <Input
+                                    value={publicReplyMessage}
+                                    onChange={(e) => setPublicReplyMessage(e.target.value)}
+                                    placeholder="ارسال شد؛ لطفاً دایرکت خود را چک کنید 🌹"
+                                    className="text-xs"
+                                  />
+                                ) : null}
+                              </div>
+
+                              {/* Takeover Control Settings */}
+                              <div className="border-t border-app-border pt-3 space-y-3">
+                                <div>
+                                  <p className="text-xs font-black text-app-text">رفتار در صورت پاسخ مشتری (Operator Takeover)</p>
+                                  <p className="mt-0.5 text-[10px] text-app-muted">زمانی که کاربر به پیام خودکار شما پاسخ دهد، اتوماسیون متوقف شده و این گفتگو به اپراتور واگذار می‌شود.</p>
+                                </div>
+                                <div className="grid gap-2 sm:grid-cols-2">
+                                  <label className={`app-interactive flex items-start gap-2.5 rounded-md border p-2.5 text-right cursor-pointer transition ${
+                                    onCustomerReply === "hand_off" ? "border-app-primary bg-white shadow-soft" : "border-app-border bg-white/70"
+                                  }`}>
+                                    <input
+                                      type="radio"
+                                      name="onCustomerReply"
+                                      value="hand_off"
+                                      checked={onCustomerReply === "hand_off"}
+                                      onChange={() => setOnCustomerReply("hand_off")}
+                                      className="mt-0.5 h-3.5 w-3.5 text-app-primary focus:ring-app-primary"
+                                    />
+                                    <span>
+                                      <span className="block text-xs font-black text-app-text">سکوت و واگذاری گفتگو</span>
+                                      <span className="mt-0.5 block text-[10px] text-app-muted">بدون پیام اضافه، وضعیت گفتگو را به «در انتظار پاسخ اپراتور» تغییر دهید.</span>
+                                    </span>
+                                  </label>
+
+                                  <label className={`app-interactive flex items-start gap-2.5 rounded-md border p-2.5 text-right cursor-pointer transition ${
+                                    onCustomerReply === "send_waiting_message" ? "border-app-primary bg-white shadow-soft" : "border-app-border bg-white/70"
+                                  }`}>
+                                    <input
+                                      type="radio"
+                                      name="onCustomerReply"
+                                      value="send_waiting_message"
+                                      checked={onCustomerReply === "send_waiting_message"}
+                                      onChange={() => setOnCustomerReply("send_waiting_message")}
+                                      className="mt-0.5 h-3.5 w-3.5 text-app-primary focus:ring-app-primary"
+                                    />
+                                    <span>
+                                      <span className="block text-xs font-black text-app-text">ارسال پیام انتظار خودکار</span>
+                                      <span className="mt-0.5 block text-[10px] text-app-muted">یک پیام پیش‌فرض برای مشتری بفرستید و سپس گفتگو را به اپراتور واگذار کنید.</span>
+                                    </span>
+                                  </label>
+                                </div>
+                                {onCustomerReply === "send_waiting_message" ? (
+                                  <Field label="متن پیام انتظار خودکار" required hint="این پیام قبل از توقف اتوماسیون به دایرکت کاربر فرستاده می‌شود.">
+                                    <Input
+                                      value={waitingReplyMessage}
+                                      onChange={(e) => setWaitingReplyMessage(e.target.value)}
+                                      placeholder="پیام شما دریافت شد؛ به زودی اپراتور به شما پاسخ خواهد داد."
+                                      required
+                                    />
+                                  </Field>
+                                ) : null}
+                              </div>
+                            </div>
+                          ) : null}
+                        </section>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>
               </WorkspacePanel>
+
+              {/* Mobile Stepper pagination */}
+              <div className="lg:hidden flex items-center justify-between border-t border-app-border bg-app-surfaceMuted/50 p-3 mt-3 rounded-lg">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={activeStepIndex === 0}
+                  onClick={() => handleStepClick(activeStepIndex - 1)}
+                  className="w-[45%]"
+                >
+                  قبلی
+                </Button>
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={activeStepIndex === 3}
+                  onClick={() => handleStepClick(activeStepIndex + 1)}
+                  className="w-[45%]"
+                >
+                  بعدی
+                </Button>
+              </div>
 
               {message ? <NoticeBanner tone="success" title="انجام شد">{message}</NoticeBanner> : null}
               {error ? <NoticeBanner tone="alert" title="نیاز به بررسی">{error}</NoticeBanner> : null}
@@ -1117,7 +1659,23 @@ function ComposePageContent() {
                       <button
                         key={panel.value}
                         type="button"
-                        onClick={() => setStudioPanel(panel.value)}
+                        onClick={() => {
+                          setStudioPanel(panel.value);
+                          if (panel.value === "schedule") {
+                            setWorkspaceMode("workflow");
+                            setActiveStepIndex(2);
+                          } else if (panel.value === "review") {
+                            setWorkspaceMode("workflow");
+                            setActiveStepIndex(3);
+                          } else if (panel.value === "preview") {
+                            if (workspaceMode !== "content" && workspaceMode !== "media") {
+                              setWorkspaceMode("content");
+                              setActiveStepIndex(0);
+                            } else {
+                              setActiveStepIndex(workspaceMode === "content" ? 0 : 1);
+                            }
+                          }
+                        }}
                         className={`app-interactive relative flex min-w-0 flex-col items-center gap-1 rounded-md px-2 py-2 text-[11px] font-black ${
                           active ? "bg-white text-app-primary shadow-sm" : "text-slate-500 hover:text-app-text"
                         }`}
@@ -1133,13 +1691,71 @@ function ComposePageContent() {
                 <div className="p-3">
                   {studioPanel === "preview" ? (
                     <div>
-                      <div className="mb-3 flex items-center justify-between gap-2">
-                        <p className="text-xs font-black text-app-text">خروجی مخاطب</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          <ChannelBadges platform={form.platform} compact />
+                      <div className="mb-3 flex flex-col gap-2.5">
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs font-black text-app-text">کانال پیش‌نمایش</p>
+                          <div className="flex gap-1">
+                            <button
+                              type="button"
+                              onClick={() => setPreviewChannel("rubika")}
+                              className={`rounded px-2.5 py-1 text-xs font-black transition ${
+                                previewChannel === "rubika" ? "bg-app-primary text-white" : "bg-app-surfaceMuted text-app-muted hover:bg-slate-200"
+                              }`}
+                            >
+                              روبیکا
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setPreviewChannel("instagram")}
+                              className={`rounded px-2.5 py-1 text-xs font-black transition ${
+                                previewChannel === "instagram" ? "bg-app-primary text-white" : "bg-app-surfaceMuted text-app-muted hover:bg-slate-200"
+                              }`}
+                            >
+                              اینستاگرام
+                            </button>
+                          </div>
                         </div>
+
+                        {previewChannel === "instagram" ? (
+                          <div className="flex items-center justify-between border-t border-app-border pt-2">
+                            <p className="text-xs font-black text-app-muted">قالب انتشار</p>
+                            <div className="flex gap-1">
+                              {(["feed", "story", "reel"] as const).map((mode) => (
+                                <button
+                                  key={mode}
+                                  type="button"
+                                  onClick={() => setInstagramPreviewMode(mode)}
+                                  className={`rounded px-2 py-0.5 text-[10px] font-bold capitalize transition ${
+                                    instagramPreviewMode === mode ? "bg-slate-600 text-white" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                                  }`}
+                                >
+                                  {mode === "feed" ? "پست" : mode === "story" ? "استوری" : "ریلز"}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : null}
                       </div>
-                      <RubikaPostPreview imageUrl={previewImageUrl} caption={finalPreview} destination={store?.name || "کانال روبیکا"} brandColor={store?.brand_primary_color} avatarUrl={brandAvatarUrl} />
+
+                      {previewChannel === "instagram" ? (
+                        <InstagramPostPreview
+                          imageUrl={previewImageUrl}
+                          caption={finalPreview}
+                          destination={store?.name || "اکانت اینستاگرام"}
+                          brandColor={store?.brand_primary_color}
+                          avatarUrl={brandAvatarUrl}
+                          viewMode={instagramPreviewMode}
+                        />
+                      ) : (
+                        <RubikaPostPreview
+                          imageUrl={previewImageUrl}
+                          caption={finalPreview}
+                          destination={store?.name || "کانال روبیکا"}
+                          brandColor={store?.brand_primary_color}
+                          avatarUrl={brandAvatarUrl}
+                        />
+                      )}
+
                       <div className="mt-3 grid grid-cols-3 divide-x divide-x-reverse divide-app-border overflow-hidden rounded-md bg-app-surfaceMuted text-center shadow-hairline">
                         <div className="p-2"><p className="text-sm font-black text-app-text">{captionLength}</p><p className="mt-1 text-[10px] text-app-muted">کاراکتر</p></div>
                         <div className="p-2"><p className="text-sm font-black text-app-text">{hashtagCount}</p><p className="mt-1 text-[10px] text-app-muted">هشتگ</p></div>

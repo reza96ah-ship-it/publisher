@@ -250,3 +250,4 @@ export function InstagramAutomationPanel({ accountType, channelStatus }: Instagr
     </WorkspacePanel>
   );
 }
+

@@ -16,3 +16,4 @@ export function Tag({ tone = "neutral", children, className = "" }: TagProps) {
     </StatusToken>
   );
 }
+

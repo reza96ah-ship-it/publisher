@@ -33,3 +33,4 @@ export function MediaCard({ filename, contentType, sizeLabel, previewUrl, linked
     </article>
   );
 }
+

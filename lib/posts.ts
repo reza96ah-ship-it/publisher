@@ -1,4 +1,4 @@
-export const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+export const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 
 export type PostStatus = "draft" | "ready" | "scheduled" | "publishing" | "published" | "partially_published" | "manual_ready" | "failed" | "cancelled";
 export type ApprovalStatus = "not_required" | "pending" | "approved" | "rejected" | "changes_requested";
@@ -161,3 +161,4 @@ export function recoveryGuidance(error?: string | null) {
   }
   return "جزئیات خطا را بررسی کنید. پس از اصلاح علت، پست را دوباره وارد صف انتشار کنید.";
 }
+

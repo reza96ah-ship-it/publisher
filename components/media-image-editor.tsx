@@ -2028,7 +2028,7 @@ export function MediaImageEditor({ imageUrl, filename, saving = false, onClose, 
                           <span className="rounded bg-app-surfaceMuted px-1.5 py-0.5 text-[9px] font-black text-app-muted">{template.brandColors?.length ?? 0} رنگ برند</span>
                         </span>
                       </button>
-                    <button type="button" onClick={() => deleteSavedTemplate(template.id)} className="app-interactive nahrino-control-radius flex h-8 w-8 shrink-0 items-center justify-center bg-app-surfaceMuted text-slate-600 hover:bg-rose-50 hover:text-rose-700" aria-label="حذف قالب" title="حذف قالب">
+                    <button type="button" onClick={() => deleteSavedTemplate(template.id)} className="app-interactive nashrino-control-radius flex h-8 w-8 shrink-0 items-center justify-center bg-app-surfaceMuted text-slate-600 hover:bg-rose-50 hover:text-rose-700" aria-label="حذف قالب" title="حذف قالب">
                         <Trash2 className="h-4 w-4" aria-hidden="true" />
                       </button>
                     </div>
@@ -2289,20 +2289,20 @@ export function MediaImageEditor({ imageUrl, filename, saving = false, onClose, 
               </div>
             ) : null}
             <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 flex-wrap items-center justify-center gap-1 rounded-lg border border-white/80 bg-white/95 p-1.5 shadow-soft">
-                  <button type="button" onClick={() => { setFitMode("custom"); setZoom((current) => Math.max(20, current - 10)); }} className="app-interactive nahrino-control-radius flex h-8 w-8 items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-app-primary" aria-label="کوچک‌نمایی" title="کوچک‌نمایی">
+                  <button type="button" onClick={() => { setFitMode("custom"); setZoom((current) => Math.max(20, current - 10)); }} className="app-interactive nashrino-control-radius flex h-8 w-8 items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-app-primary" aria-label="کوچک‌نمایی" title="کوچک‌نمایی">
                 <Minus className="h-4 w-4" aria-hidden="true" />
               </button>
               <span className="min-w-12 text-center text-[11px] font-black text-app-text">{zoom}%</span>
-                  <button type="button" onClick={() => { setFitMode("custom"); setZoom((current) => Math.min(180, current + 10)); }} className="app-interactive nahrino-control-radius flex h-8 w-8 items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-app-primary" aria-label="بزرگ‌نمایی" title="بزرگ‌نمایی">
+                  <button type="button" onClick={() => { setFitMode("custom"); setZoom((current) => Math.min(180, current + 10)); }} className="app-interactive nashrino-control-radius flex h-8 w-8 items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-app-primary" aria-label="بزرگ‌نمایی" title="بزرگ‌نمایی">
                 <Plus className="h-4 w-4" aria-hidden="true" />
               </button>
-                  <button type="button" onClick={() => applyFitMode("fit")} className={`app-interactive nahrino-control-radius flex h-8 w-8 items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-app-primary ${fitMode === "fit" ? "bg-blue-50 text-app-primary ring-1 ring-blue-200" : ""}`} aria-label="جای دادن در صفحه" title="جای دادن در صفحه">
+                  <button type="button" onClick={() => applyFitMode("fit")} className={`app-interactive nashrino-control-radius flex h-8 w-8 items-center justify-center text-slate-600 hover:bg-blue-50 hover:text-app-primary ${fitMode === "fit" ? "bg-blue-50 text-app-primary ring-1 ring-blue-200" : ""}`} aria-label="جای دادن در صفحه" title="جای دادن در صفحه">
                 <Maximize2 className="h-4 w-4" aria-hidden="true" />
               </button>
-                  <button type="button" onClick={() => applyFitMode("actual")} className={`app-interactive nahrino-control-radius min-h-8 px-3 text-[10px] font-black text-slate-600 hover:bg-blue-50 hover:text-app-primary ${fitMode === "actual" ? "bg-blue-50 text-app-primary ring-1 ring-blue-200" : ""}`} aria-label="نمایش صد درصد" title="نمایش صد درصد">
+                  <button type="button" onClick={() => applyFitMode("actual")} className={`app-interactive nashrino-control-radius min-h-8 px-3 text-[10px] font-black text-slate-600 hover:bg-blue-50 hover:text-app-primary ${fitMode === "actual" ? "bg-blue-50 text-app-primary ring-1 ring-blue-200" : ""}`} aria-label="نمایش صد درصد" title="نمایش صد درصد">
                 ۱۰۰
               </button>
-                  <button type="button" onClick={() => applyFitMode("fill")} className={`app-interactive nahrino-control-radius min-h-8 px-3 text-[10px] font-black text-slate-600 hover:bg-blue-50 hover:text-app-primary ${fitMode === "fill" ? "bg-blue-50 text-app-primary ring-1 ring-blue-200" : ""}`} aria-label="پر کردن عرض" title="پر کردن عرض">
+                  <button type="button" onClick={() => applyFitMode("fill")} className={`app-interactive nashrino-control-radius min-h-8 px-3 text-[10px] font-black text-slate-600 hover:bg-blue-50 hover:text-app-primary ${fitMode === "fill" ? "bg-blue-50 text-app-primary ring-1 ring-blue-200" : ""}`} aria-label="پر کردن عرض" title="پر کردن عرض">
                 عرض
               </button>
             </div>
@@ -2422,10 +2422,10 @@ export function MediaImageEditor({ imageUrl, filename, saving = false, onClose, 
                             </span>
                             <span className="mt-0.5 block truncate text-[10px] font-bold text-app-muted">{layer.type === "text" ? layer.value : "استیکر"} · {Math.round(layer.opacity)}%</span>
                           </button>
-                    <button type="button" onClick={() => updateLayer(layer.id, { visible: !layer.visible })} className="app-interactive nahrino-control-radius flex h-8 w-8 shrink-0 items-center justify-center bg-app-surfaceMuted text-slate-600 hover:bg-white hover:text-app-primary" aria-label={layer.visible ? "پنهان کردن لایه" : "نمایش لایه"} title={layer.visible ? "پنهان کردن" : "نمایش"}>
+                    <button type="button" onClick={() => updateLayer(layer.id, { visible: !layer.visible })} className="app-interactive nashrino-control-radius flex h-8 w-8 shrink-0 items-center justify-center bg-app-surfaceMuted text-slate-600 hover:bg-white hover:text-app-primary" aria-label={layer.visible ? "پنهان کردن لایه" : "نمایش لایه"} title={layer.visible ? "پنهان کردن" : "نمایش"}>
                             {layer.visible ? <Eye className="h-4 w-4" aria-hidden="true" /> : <EyeOff className="h-4 w-4" aria-hidden="true" />}
                           </button>
-                    <button type="button" onClick={() => updateLayer(layer.id, { locked: !layer.locked })} className="app-interactive nahrino-control-radius flex h-8 w-8 shrink-0 items-center justify-center bg-app-surfaceMuted text-slate-600 hover:bg-white hover:text-app-primary" aria-label={layer.locked ? "باز کردن قفل لایه" : "قفل کردن لایه"} title={layer.locked ? "باز کردن قفل" : "قفل کردن"}>
+                    <button type="button" onClick={() => updateLayer(layer.id, { locked: !layer.locked })} className="app-interactive nashrino-control-radius flex h-8 w-8 shrink-0 items-center justify-center bg-app-surfaceMuted text-slate-600 hover:bg-white hover:text-app-primary" aria-label={layer.locked ? "باز کردن قفل لایه" : "قفل کردن لایه"} title={layer.locked ? "باز کردن قفل" : "قفل کردن"}>
                             {layer.locked ? <Lock className="h-4 w-4" aria-hidden="true" /> : <Unlock className="h-4 w-4" aria-hidden="true" />}
                           </button>
                         </div>
@@ -2762,3 +2762,4 @@ export function MediaImageEditor({ imageUrl, filename, saving = false, onClose, 
     </div>
   ), document.body);
 }
+

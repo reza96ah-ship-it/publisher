@@ -49,8 +49,6 @@ const mediaNavItem: NavItem = { label: "رسانه", href: "/media", icon: Galle
 const inboxNavItem: NavItem = { label: "پیام‌ها", href: "/inbox", icon: BellRing };
 const reportsNavItem: NavItem = { label: "گزارش‌ها", href: "/analytics", icon: BarChart3 };
 const channelsNavItem: NavItem = { label: "کانال‌ها", href: "/channels", icon: Network };
-const queueNavItem: NavItem = { label: "صف انتظار", href: "/queue", icon: FileText };
-const logsNavItem: NavItem = { label: "گزارش انتشار", href: "/logs", icon: BarChart3 };
 const settingsNavItem: NavItem = { label: "تنظیمات", href: "/store", icon: Store };
 
 const primaryNavItems: NavItem[] = [
@@ -59,11 +57,9 @@ const primaryNavItems: NavItem[] = [
   plannerNavItem,
   campaignsNavItem,
   contentNavItem,
-  queueNavItem,
   mediaNavItem,
   inboxNavItem,
   reportsNavItem,
-  logsNavItem,
   channelsNavItem
 ];
 
@@ -107,11 +103,19 @@ export function getActiveNav(pathname: string) {
     return { group: { title: "کمپین‌ها", items: [campaignsNavItem] }, item: campaignsNavItem };
   }
 
-  if (isActiveRoute(pathname, "/content") || isActiveRoute(pathname, "/queue")) {
+  if (isActiveRoute(pathname, "/content")) {
     return { group: { title: "محتوا", items: [contentNavItem] }, item: contentNavItem };
   }
 
-  if (isActiveRoute(pathname, "/analytics") || isActiveRoute(pathname, "/logs")) {
+  if (isActiveRoute(pathname, "/queue")) {
+    return { group: { title: "برنامه‌ریز", items: [plannerNavItem] }, item: plannerNavItem };
+  }
+
+  if (isActiveRoute(pathname, "/analytics")) {
+    return { group: { title: "گزارش‌ها", items: [reportsNavItem] }, item: reportsNavItem };
+  }
+
+  if (isActiveRoute(pathname, "/logs")) {
     return { group: { title: "گزارش‌ها", items: [reportsNavItem] }, item: reportsNavItem };
   }
 
@@ -135,10 +139,10 @@ function NavEntry({ item, active }: { item: NavItem; active: boolean }) {
   return (
     <Link
       href={item.href}
-      className={`app-interactive group relative flex min-h-10 items-center gap-2.5 rounded-md px-2.5 text-sm ${
+      className={`app-interactive group relative flex min-h-10 items-center gap-2.5 rounded-lg px-2.5 text-sm ${
           active
-            ? "nahrino-nav-active font-black"
-            : "nahrino-nav-idle hover:shadow-hairline"
+            ? "nashrino-nav-active font-black"
+            : "nashrino-nav-idle"
       }`}
     >
       {active ? <span className="absolute inset-y-2 right-0 w-0.5 rounded-l-full bg-app-primary" /> : null}
@@ -152,9 +156,9 @@ export function Sidebar({ storeName = "فضای کاری", ready = false, brandC
   const pathname = usePathname();
 
   return (
-    <aside className="nahrino-sidebar hidden w-[238px] shrink-0 border-l border-app-border/80 backdrop-blur-xl lg:sticky lg:top-0 lg:flex lg:h-screen lg:self-start lg:flex-col lg:overflow-hidden">
+    <aside className="nashrino-sidebar hidden w-[238px] shrink-0 border-l border-app-border/80 backdrop-blur-xl lg:sticky lg:top-0 lg:flex lg:h-screen lg:self-start lg:flex-col lg:overflow-hidden">
       <div className="shrink-0 border-b border-app-border/80 px-3 py-3">
-        <Link href="/" className="flex items-center gap-2.5 rounded-md px-1 py-1">
+        <Link href="/" className="flex items-center gap-2.5 rounded-lg px-1 py-1">
           <ProductMark />
           <div className="min-w-0">
             <p className="truncate text-sm font-black text-app-text">{productName}</p>
@@ -164,7 +168,7 @@ export function Sidebar({ storeName = "فضای کاری", ready = false, brandC
 
         <Link
           href="/store"
-          className="app-interactive nahrino-card-muted mt-3 flex items-center gap-2 rounded-md px-2.5 py-2.5 hover:bg-white"
+          className="app-interactive nashrino-card-muted mt-3 flex items-center gap-2 rounded-lg px-2.5 py-2.5 hover:bg-white"
         >
           <WorkspaceAvatar name={storeName} size="sm" color={brandColor} imageUrl={avatarUrl} />
           <span className="min-w-0 flex-1">
@@ -180,7 +184,7 @@ export function Sidebar({ storeName = "فضای کاری", ready = false, brandC
         <p className="mb-2 px-2.5 text-[10px] font-black text-app-muted">محصول</p>
         <div className="space-y-1">
           {primaryNavItems.map((item) => {
-            const active = isNavItemActive(pathname || "", item);
+            const active = isNavItemActive(pathname, item);
             return <NavEntry key={item.href} item={item} active={active} />;
           })}
         </div>
@@ -192,7 +196,7 @@ export function Sidebar({ storeName = "فضای کاری", ready = false, brandC
           <Settings2 className="h-3.5 w-3.5 text-app-muted" aria-hidden="true" />
         </div>
         <div className="space-y-0.5">
-          {settingsNavItems.map((item) => <NavEntry key={item.href} item={item} active={isNavItemActive(pathname || "", item)} />)}
+          {settingsNavItems.map((item) => <NavEntry key={item.href} item={item} active={isNavItemActive(pathname, item)} />)}
         </div>
         {!ready ? (
           <Link href="/onboarding" className="app-interactive mt-3 flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-2 text-xs font-bold text-amber-700 shadow-hairline">
@@ -219,7 +223,7 @@ export function MobileNav() {
   return (
     <nav className="fixed inset-x-2 bottom-2 z-30 grid grid-cols-5 rounded-xl border border-app-border bg-app-surface/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-lift backdrop-blur-xl lg:hidden" aria-label="ناوبری اصلی">
       {mobileNavItems.map((item) => {
-        const active = isNavItemActive(pathname || "", item);
+        const active = isNavItemActive(pathname, item);
         const Icon = item.icon;
         return (
           <Link
@@ -244,3 +248,4 @@ export function MobileNav() {
     </nav>
   );
 }
+

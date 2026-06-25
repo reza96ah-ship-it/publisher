@@ -1,6 +1,6 @@
-﻿# Nahrino Unified Component System
+﻿# Nashrino Unified Component System
 
-This directory contains the canonical, hardened components used across Nahrino. All pages must use these components instead of page-specific styling.
+This directory contains the canonical, hardened components used across Nashrino. All pages must use these components instead of page-specific styling.
 
 ## Core Components
 
@@ -170,3 +170,4 @@ import { DataTable, DataRow } from "@/components/ui/data-row";
 - [ ] Replace all table/list rows with `<DataRow>`
 - [ ] Remove all page-specific button CSS
 - [ ] Remove all page-specific status CSS
+

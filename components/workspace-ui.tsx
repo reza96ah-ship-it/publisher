@@ -116,13 +116,13 @@ const metricToneClasses: Record<NonNullable<MetricTileProps["tone"]>, string> = 
 };
 
 const tokenToneClasses: Record<StatusTokenTone, string> = {
-  neutral: "border-slate-200 bg-slate-50/90 text-slate-700",
-  primary: "border-blue-200 bg-blue-50 text-app-primary",
-  success: "border-teal-200 bg-teal-50 text-teal-700",
-  warning: "border-amber-200 bg-amber-50 text-amber-700",
-  alert: "border-rose-200 bg-rose-50 text-rose-700",
-  info: "border-sky-200 bg-sky-50 text-sky-700",
-  dark: "border-blue-500 bg-app-primary text-white"
+  neutral: "border-app-border bg-app-surfaceMuted/50 text-app-muted",
+  primary: "border-app-primary/20 bg-app-soft text-app-primary",
+  success: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  warning: "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  alert: "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  info: "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400",
+  dark: "border-app-primary bg-app-primary text-white"
 };
 
 const tokenSizeClasses: Record<NonNullable<StatusTokenProps["size"]>, string> = {
@@ -132,10 +132,10 @@ const tokenSizeClasses: Record<NonNullable<StatusTokenProps["size"]>, string> = 
 };
 
 const noticeToneClasses: Record<NoticeTone, string> = {
-  success: "border-emerald-200 bg-emerald-50 text-emerald-800",
-  warning: "border-amber-200 bg-amber-50 text-amber-800",
-  alert: "border-rose-200 bg-rose-50 text-rose-800",
-  info: "border-blue-200 bg-blue-50 text-blue-800"
+  success: "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+  warning: "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  alert: "border-rose-500/20 bg-rose-500/10 text-rose-600 dark:text-rose-400",
+  info: "border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400"
 };
 
 export function WorkspacePage({ children, className = "" }: WorkspacePageProps) {
@@ -144,7 +144,7 @@ export function WorkspacePage({ children, className = "" }: WorkspacePageProps) 
 
 export function WorkspaceHero({ eyebrow, title, description, actions, meta, aside }: WorkspaceHeroProps) {
   return (
-    <section className="nahrino-card overflow-hidden rounded-xl">
+    <section className="nashrino-card overflow-hidden rounded-xl">
       <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 px-3 py-3 sm:px-4 lg:px-5">
           {eyebrow ? <p className="app-section-kicker text-[11px] font-black uppercase">{eyebrow}</p> : null}
@@ -157,7 +157,7 @@ export function WorkspaceHero({ eyebrow, title, description, actions, meta, asid
           </div>
           {meta ? <div className="mt-3 flex flex-wrap gap-2">{meta}</div> : null}
         </div>
-        {aside ? <div className="nahrino-card-muted border-t border-app-border p-3 sm:p-4 lg:border-r lg:border-t-0">{aside}</div> : null}
+        {aside ? <div className="nashrino-card-muted border-t border-app-border p-3 sm:p-4 lg:border-r lg:border-t-0">{aside}</div> : null}
       </div>
     </section>
   );
@@ -178,7 +178,7 @@ export function WorkspaceHeader({ eyebrow, title, description, action }: Workspa
 
 export function WorkspaceToolbar({ children, meta, className = "" }: WorkspaceToolbarProps) {
   return (
-    <div className={`app-row nahrino-card-muted flex flex-col gap-2 rounded-lg px-2.5 py-2 lg:flex-row lg:items-center lg:justify-between ${className}`}>
+    <div className={`app-row nashrino-card-muted flex flex-col gap-2 rounded-lg px-2.5 py-2 lg:flex-row lg:items-center lg:justify-between ${className}`}>
       <div className="min-w-0">{children}</div>
       {meta ? <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-app-muted">{meta}</div> : null}
     </div>
@@ -201,12 +201,12 @@ export function MetricTile({ label, value, hint, tone = "neutral", icon }: Metri
 }
 
 export function MetricStrip({ children }: { children: ReactNode }) {
-  return <div className="nahrino-card grid grid-cols-2 overflow-hidden rounded-lg divide-x divide-y divide-app-border divide-x-reverse md:grid-cols-4 md:divide-y-0">{children}</div>;
+  return <div className="nashrino-card grid grid-cols-2 overflow-hidden rounded-lg divide-x divide-y divide-app-border divide-x-reverse md:grid-cols-4 md:divide-y-0">{children}</div>;
 }
 
 export function WorkspacePanel({ title, description, action, children, className = "", bodyClassName = "p-4" }: WorkspacePanelProps) {
   return (
-    <section className={`nahrino-card rounded-xl ${className}`}>
+    <section className={`nashrino-card rounded-xl ${className}`}>
       <div className="flex flex-col justify-between gap-2 border-b border-app-border bg-[#fbfaf7] px-3 py-2.5 lg:flex-row lg:items-center">
         <div className="min-w-0">
           <h2 className="text-sm font-black text-app-text">{title}</h2>
@@ -368,3 +368,4 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
     </ol>
   );
 }
+

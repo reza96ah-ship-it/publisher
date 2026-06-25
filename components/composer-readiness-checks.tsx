@@ -35,3 +35,4 @@ export function ComposerReadinessChecks({ items }: ComposerReadinessChecksProps)
     </div>
   );
 }
+

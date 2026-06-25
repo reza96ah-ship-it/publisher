@@ -59,3 +59,4 @@ export function channelStatusLabel(account?: ChannelAccount | null) {
   if (account.status === "failed") return "خطا دارد";
   return account.status;
 }
+

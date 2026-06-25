@@ -44,3 +44,4 @@ export function StatusBadge({ status }: { status: string }) {
 
   return <Tag tone={config.tone}>{config.label}</Tag>;
 }
+

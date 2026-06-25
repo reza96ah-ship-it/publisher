@@ -14,7 +14,7 @@ import { Tag } from "../../components/ui/tag";
 import { DetailGrid, EmptyState, NoticeBanner, StatusToken, WorkspacePage, WorkspacePanel, WorkspaceToolbar } from "../../components/workspace-ui";
 import { campaignLabelForPost, loadCampaigns, type Campaign } from "../../lib/campaigns";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 
 type MediaAsset = {
   id: number;
@@ -650,7 +650,7 @@ export default function MediaPage() {
                       <button
                         type="button"
                         onClick={() => setMediaView("grid")}
-                        className={`app-interactive nahrino-control-radius flex h-8 w-8 items-center justify-center ${mediaView === "grid" ? "bg-white text-app-primary shadow-sm" : "text-slate-500 hover:text-app-primary"}`}
+                        className={`app-interactive nashrino-control-radius flex h-8 w-8 items-center justify-center ${mediaView === "grid" ? "bg-white text-app-primary shadow-sm" : "text-slate-500 hover:text-app-primary"}`}
                         aria-label="نمایش شبکه‌ای"
                         title="نمایش شبکه‌ای"
                       >
@@ -659,7 +659,7 @@ export default function MediaPage() {
                       <button
                         type="button"
                         onClick={() => setMediaView("list")}
-                        className={`app-interactive nahrino-control-radius flex h-8 w-8 items-center justify-center ${mediaView === "list" ? "bg-white text-app-primary shadow-sm" : "text-slate-500 hover:text-app-primary"}`}
+                        className={`app-interactive nashrino-control-radius flex h-8 w-8 items-center justify-center ${mediaView === "list" ? "bg-white text-app-primary shadow-sm" : "text-slate-500 hover:text-app-primary"}`}
                         aria-label="نمایش فهرستی"
                         title="نمایش فهرستی"
                       >
@@ -697,11 +697,11 @@ export default function MediaPage() {
                 </WorkspaceToolbar>
                 {folders.length ? (
                   <div className="mb-3 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => setFolderFilter("all")} className={`app-interactive nahrino-control-radius inline-flex min-h-8 items-center px-3 text-xs font-bold ${folderFilter === "all" ? "bg-app-primary text-white" : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-app-primary"}`}>
+                    <button type="button" onClick={() => setFolderFilter("all")} className={`app-interactive nashrino-control-radius inline-flex min-h-8 items-center px-3 text-xs font-bold ${folderFilter === "all" ? "bg-app-primary text-white" : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-app-primary"}`}>
                       همه پوشه‌ها
                     </button>
                     {folders.map((folder) => (
-                    <button key={folder} type="button" onClick={() => setFolderFilter(folder)} className={`app-interactive nahrino-control-radius inline-flex min-h-8 items-center gap-1 px-3 text-xs font-bold ${folderFilter === folder ? "bg-app-primary text-white" : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-app-primary"}`}>
+                    <button key={folder} type="button" onClick={() => setFolderFilter(folder)} className={`app-interactive nashrino-control-radius inline-flex min-h-8 items-center gap-1 px-3 text-xs font-bold ${folderFilter === folder ? "bg-app-primary text-white" : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-app-primary"}`}>
                         <Folder className="h-3.5 w-3.5" aria-hidden="true" />
                         {folder}
                       </button>
@@ -715,7 +715,7 @@ export default function MediaPage() {
                       <StatusToken tone={campaignFilter === "all" ? "neutral" : "primary"}>{campaignFilter === "all" ? "همه کمپین‌ها" : "کمپین انتخاب‌شده"}</StatusToken>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                  <button type="button" onClick={() => setCampaignFilter("all")} className={`app-interactive nahrino-control-radius inline-flex min-h-8 items-center px-3 text-xs font-bold ${campaignFilter === "all" ? "bg-app-primary text-white" : "bg-white text-slate-600 shadow-hairline hover:bg-blue-50 hover:text-app-primary"}`}>
+                  <button type="button" onClick={() => setCampaignFilter("all")} className={`app-interactive nashrino-control-radius inline-flex min-h-8 items-center px-3 text-xs font-bold ${campaignFilter === "all" ? "bg-app-primary text-white" : "bg-white text-slate-600 shadow-hairline hover:bg-blue-50 hover:text-app-primary"}`}>
                         همه کمپین‌ها
                       </button>
                       {campaignAssetOptions.map(({ campaign, count }) => (
@@ -726,7 +726,7 @@ export default function MediaPage() {
                             setCampaignFilter(`id:${campaign.id}`);
                             setMediaFilter("attached");
                           }}
-                        className={`app-interactive nahrino-control-radius inline-flex min-h-8 items-center gap-1.5 px-3 text-xs font-bold ${campaignFilter === `id:${campaign.id}` ? "bg-app-primary text-white" : "bg-white text-slate-600 shadow-hairline hover:bg-blue-50 hover:text-app-primary"}`}
+                        className={`app-interactive nashrino-control-radius inline-flex min-h-8 items-center gap-1.5 px-3 text-xs font-bold ${campaignFilter === `id:${campaign.id}` ? "bg-app-primary text-white" : "bg-white text-slate-600 shadow-hairline hover:bg-blue-50 hover:text-app-primary"}`}
                         >
                           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: campaign.color }} />
                           {campaign.name}
@@ -851,7 +851,7 @@ export default function MediaPage() {
                     <button
                       type="button"
                       onClick={clearSelectedAsset}
-                    className="app-interactive nahrino-control-radius flex h-8 w-8 items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-app-text"
+                    className="app-interactive nashrino-control-radius flex h-8 w-8 items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-app-text"
                       aria-label="لغو انتخاب رسانه"
                       title="لغو انتخاب رسانه"
                     >
@@ -896,7 +896,7 @@ export default function MediaPage() {
                         <button
                           type="button"
                           onClick={() => setEditingAsset(selectedAsset)}
-                        className="app-interactive nahrino-control-radius absolute bottom-2 left-2 inline-flex min-h-8 items-center gap-1.5 bg-white/95 px-3 text-[11px] font-black text-app-text shadow-soft ring-1 ring-app-border hover:bg-blue-50 hover:text-app-primary"
+                        className="app-interactive nashrino-control-radius absolute bottom-2 left-2 inline-flex min-h-8 items-center gap-1.5 bg-white/95 px-3 text-[11px] font-black text-app-text shadow-soft ring-1 ring-app-border hover:bg-blue-50 hover:text-app-primary"
                         >
                           <PencilLine className="h-3.5 w-3.5" aria-hidden="true" />
                           باز کردن در ویرایشگر
@@ -1121,3 +1121,4 @@ export default function MediaPage() {
     </AuthGate>
   );
 }
+

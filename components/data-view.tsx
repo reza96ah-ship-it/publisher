@@ -38,7 +38,7 @@ export function DataToolbar({ children, meta }: DataToolbarProps) {
 
 export function DataSearchField(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
-    <label className="nahrino-control-radius flex min-h-10 items-center gap-2 bg-white px-3 shadow-hairline ring-app-primary focus-within:ring-2">
+    <label className="nashrino-control-radius flex min-h-10 items-center gap-2 bg-white px-3 shadow-hairline ring-app-primary focus-within:ring-2">
       <Search className="h-4 w-4 shrink-0 text-app-muted" aria-hidden="true" />
       <input
         {...props}
@@ -53,7 +53,7 @@ export function FilterChip({ active, children, count, onClick }: FilterChipProps
     <button
       type="button"
       onClick={onClick}
-      className={`app-interactive nahrino-control-radius inline-flex min-h-8 items-center px-3 text-xs font-bold ${
+      className={`app-interactive nashrino-control-radius inline-flex min-h-8 items-center px-3 text-xs font-bold ${
         active ? "bg-app-primary text-white shadow-sm" : "bg-slate-100 text-slate-600 hover:bg-blue-50 hover:text-app-primary"
       }`}
     >
@@ -91,3 +91,4 @@ export function DataRow({ children, gridClassName, selected, className = "" }: D
     </article>
   );
 }
+

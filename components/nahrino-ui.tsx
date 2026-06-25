@@ -545,32 +545,33 @@ export function NTabs({ tabs, activeTab, onTabChange, className = "" }: NTabsPro
 export function NRow({ title, detail, icon: Icon, tone = "primary", href, meta, action, selected = false, className = "" }: NRowProps) {
   const content = (
     <article
-      className={`app-row nahrino-data-row grid min-h-rowCompact gap-3 rounded-lg border px-3 py-2.5 shadow-hairline sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${
-        selected ? "border-app-primary bg-app-soft" : "border-app-border bg-app-surface hover:bg-app-surfaceMuted"
+      className={`group relative grid min-h-[64px] gap-3 rounded-2xl border px-4 py-3 transition-all sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center ${
+        selected ? "border-app-primary bg-app-primary/5 shadow-sm" : "border-slate-200/60 bg-white/60 hover:bg-white hover:shadow-sm"
       } ${className}`}
       style={toneVars(tone)}
     >
-      <div className="flex min-w-0 items-center gap-2.5">
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[rgb(var(--token-accent)_/_0.05)] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="relative flex min-w-0 items-center gap-3.5">
         {Icon ? (
-          <span className="nahrino-token-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-md border">
-            <Icon className="h-4 w-4" aria-hidden="true" />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--token-accent)_/_0.1)] text-[rgb(var(--token-accent))] ring-1 ring-[rgb(var(--token-accent)_/_0.15)] transition-transform group-hover:scale-110">
+            <Icon className="h-4 w-4" aria-hidden="true" strokeWidth={2.5} />
           </span>
         ) : null}
         <span className="min-w-0">
-          <span className="block truncate text-sm font-black text-app-text">{title}</span>
-          {detail ? <span className="mt-0.5 block truncate text-xs leading-5 text-app-muted">{detail}</span> : null}
+          <span className="block truncate text-[14px] font-black text-slate-900 transition-colors group-hover:text-[rgb(var(--token-accent))]">{title}</span>
+          {detail ? <span className="mt-0.5 block truncate text-[12px] font-medium text-slate-500">{detail}</span> : null}
         </span>
       </div>
       {(meta || action) ? (
-        <div className="flex min-w-0 items-center gap-2 sm:justify-end">
-          {meta ? <span className="min-w-0 truncate text-xs font-bold text-app-muted">{meta}</span> : null}
+        <div className="relative flex min-w-0 items-center gap-3 sm:justify-end">
+          {meta ? <span className="min-w-0 truncate text-[12px] font-bold text-slate-400">{meta}</span> : null}
           {action}
         </div>
       ) : null}
     </article>
   );
 
-  return href ? <Link href={href} className="block rounded-lg focus:outline-none focus:ring-2 focus:ring-app-focus/30">{content}</Link> : content;
+  return href ? <Link href={href} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-[rgb(var(--token-accent)_/_0.5)]">{content}</Link> : content;
 }
 
 export function NChannelRail({ channels, compact = false, className = "" }: NChannelRailProps) {
@@ -630,13 +631,13 @@ export function NInspectorDrawer({ open, title, description, children, footer, o
   );
 }
 
-export function NSection({ title, description, action, children, className = "", bodyClassName = "mt-4" }: NSectionProps) {
+export function NSection({ title, description, action, children, className = "", bodyClassName = "mt-5" }: NSectionProps) {
   return (
-    <section className={`nahrino-section-card rounded-xl p-3 sm:p-4 ${className}`}>
-      <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
+    <section className={`rounded-[24px] border border-white/20 bg-white/60 p-5 shadow-sm ring-1 ring-black/5 backdrop-blur-2xl transition-all ${className}`}>
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
         <div className="min-w-0">
-          <h2 className="text-sm font-black text-app-text">{title}</h2>
-          {description ? <p className="mt-1 text-xs leading-5 text-app-muted">{description}</p> : null}
+          <h2 className="text-[17px] font-black tracking-tight text-slate-900">{title}</h2>
+          {description ? <p className="mt-1 text-[13px] leading-6 text-slate-500">{description}</p> : null}
         </div>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
@@ -647,73 +648,75 @@ export function NSection({ title, description, action, children, className = "",
 
 export function NActionTile({ label, value, detail, icon: Icon, tone = "primary", href, compact = true }: NActionTileProps) {
   const content = (
-    <article className={`${compact ? "min-h-[76px] p-2.5 sm:min-h-[88px] sm:p-3" : "min-h-[124px] p-4"} nahrino-metric-card rounded-lg`} style={toneVars(tone)}>
-      <div className="flex h-full flex-col justify-between gap-3">
+    <article className={`${compact ? "min-h-[88px] p-4" : "min-h-[140px] p-5"} group relative overflow-hidden rounded-[20px] border border-white/40 bg-white/80 shadow-sm ring-1 ring-black/5 backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-md hover:bg-white`} style={toneVars(tone)}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="relative flex h-full flex-col justify-between gap-3">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-xs font-bold text-app-muted">{label}</p>
-            <p className={`mt-2 font-black leading-6 text-app-text ${compact ? "line-clamp-1 text-sm" : "line-clamp-2 text-base"}`}>{value}</p>
+            <p className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">{label}</p>
+            <p className={`mt-1 font-black tracking-tight text-slate-900 ${compact ? "line-clamp-1 text-[17px]" : "line-clamp-2 text-xl"}`}>{value}</p>
           </div>
-          <span className={`nahrino-token-icon flex ${compact ? "h-8 w-8" : "h-9 w-9"} shrink-0 items-center justify-center rounded-md border`}>
-            <Icon className="h-4 w-4" aria-hidden="true" />
+          <span className={`flex ${compact ? "h-10 w-10" : "h-12 w-12"} shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[rgb(var(--token-accent)_/_0.15)] to-[rgb(var(--token-accent)_/_0.05)] text-[rgb(var(--token-accent))] shadow-sm ring-1 ring-[rgb(var(--token-accent)_/_0.2)] transition-transform group-hover:scale-110`}>
+            <Icon className={`${compact ? "h-5 w-5" : "h-6 w-6"}`} aria-hidden="true" strokeWidth={2.5} />
           </span>
         </div>
-        {detail ? <p className={`${compact ? "hidden sm:line-clamp-2 sm:block" : "line-clamp-2"} text-xs leading-5 text-app-muted`}>{detail}</p> : null}
+        {detail ? <p className={`${compact ? "hidden sm:line-clamp-2 sm:block" : "line-clamp-2"} text-[12px] font-medium leading-5 text-slate-500`}>{detail}</p> : null}
       </div>
     </article>
   );
 
-  return href ? <Link href={href} className="app-interactive block rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-100">{content}</Link> : content;
+  return href ? <Link href={href} className="block rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--token-accent))]">{content}</Link> : content;
 }
 
 export function NMetricTile({ label, value, detail, icon: Icon, tone = "primary", href }: NMetricTileProps) {
   const content = (
-    <article className="app-row nahrino-metric-card min-h-[76px] rounded-lg p-2.5 sm:min-h-[88px] sm:p-3" style={toneVars(tone)}>
-      <div className="flex h-full items-start justify-between gap-2 sm:gap-3">
+    <article className="group relative min-h-[100px] overflow-hidden rounded-[20px] border border-white/40 bg-white/80 p-4 shadow-sm ring-1 ring-black/5 backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:shadow-md hover:bg-white" style={toneVars(tone)}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="relative flex h-full items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="line-clamp-1 text-[10px] font-bold text-app-muted sm:text-xs">{label}</p>
-          <p className="dashboard-kpi-number mt-1 text-lg font-black text-app-text sm:text-xl">{value}</p>
-          {detail ? <p className="mt-1 hidden truncate text-[11px] font-bold text-app-muted sm:block">{detail}</p> : null}
+          <p className="line-clamp-1 text-[11px] font-bold tracking-wider text-slate-500 uppercase">{label}</p>
+          <p className="mt-1.5 text-2xl font-black tracking-tight text-slate-900">{value}</p>
+          {detail ? <p className="mt-2 hidden truncate text-[12px] font-medium text-slate-500 sm:block">{detail}</p> : null}
         </div>
         {Icon ? (
-          <span className="nahrino-token-icon hidden h-8 w-8 shrink-0 items-center justify-center rounded-md border sm:flex">
-            <Icon className="h-4 w-4" aria-hidden="true" />
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[rgb(var(--token-accent)_/_0.15)] to-[rgb(var(--token-accent)_/_0.05)] text-[rgb(var(--token-accent))] shadow-sm ring-1 ring-[rgb(var(--token-accent)_/_0.2)] transition-transform group-hover:scale-110 sm:flex">
+            <Icon className="h-6 w-6" aria-hidden="true" strokeWidth={2.5} />
           </span>
         ) : null}
       </div>
     </article>
   );
 
-  return href ? <Link href={href} className="app-interactive block rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-100">{content}</Link> : content;
+  return href ? <Link href={href} className="block rounded-[20px] focus:outline-none focus:ring-2 focus:ring-[rgb(var(--token-accent))]">{content}</Link> : content;
 }
 
 export function NListItem({ title, detail, icon: Icon, tone = "primary", href, meta }: NListItemProps) {
   const content = (
-    <article className="app-row nahrino-card-muted flex min-h-[58px] items-center gap-2 rounded-md px-2.5 py-2" style={toneVars(tone)}>
-      <span className="nahrino-token-icon flex h-7 w-7 shrink-0 items-center justify-center rounded-md border">
-        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+    <article className="group flex min-h-[64px] items-center gap-3 rounded-2xl border border-slate-200/50 bg-slate-50/50 px-3 py-2 transition-all hover:bg-white hover:shadow-sm" style={toneVars(tone)}>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--token-accent)_/_0.1)] text-[rgb(var(--token-accent))] ring-1 ring-[rgb(var(--token-accent)_/_0.15)] transition-transform group-hover:scale-110">
+        <Icon className="h-4 w-4" aria-hidden="true" strokeWidth={2.5} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[11px] font-black text-app-text">{title}</span>
-        {detail ? <span className="mt-0.5 block truncate text-[10px] font-bold text-app-muted">{detail}</span> : null}
+        <span className="block truncate text-[13px] font-black text-slate-900 transition-colors group-hover:text-[rgb(var(--token-accent))]">{title}</span>
+        {detail ? <span className="mt-0.5 block truncate text-[11px] font-medium text-slate-500">{detail}</span> : null}
       </span>
-      {meta ? <span className="max-w-[96px] shrink-0 truncate text-[10px]">{meta}</span> : null}
+      {meta ? <span className="max-w-[96px] shrink-0 truncate text-[11px] font-bold text-slate-400">{meta}</span> : null}
     </article>
   );
 
-  return href ? <Link href={href} className="block rounded-md focus:outline-none focus:ring-2 focus:ring-teal-100">{content}</Link> : content;
+  return href ? <Link href={href} className="block rounded-2xl focus:outline-none focus:ring-2 focus:ring-[rgb(var(--token-accent)_/_0.5)]">{content}</Link> : content;
 }
 
 export function NEmptyState({ title, detail, icon: Icon }: NEmptyStateProps) {
   return (
-    <div className="flex min-h-[58px] items-center gap-2 rounded-md border border-dashed border-app-border bg-app-surfaceMuted px-2.5 py-2">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">
-        <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+    <div className="flex min-h-[80px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50/50 p-6 text-center">
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-200/50 text-slate-400">
+        <Icon className="h-5 w-5" aria-hidden="true" strokeWidth={2.5} />
       </span>
-      <span className="min-w-0">
-        <span className="block truncate text-[11px] font-black text-app-text">{title}</span>
-        {detail ? <span className="mt-0.5 block truncate text-[10px] leading-5 text-app-muted">{detail}</span> : null}
-      </span>
+      <div className="max-w-[280px]">
+        <h3 className="text-[14px] font-black tracking-tight text-slate-700">{title}</h3>
+        {detail ? <p className="mt-1 text-[12px] font-medium leading-5 text-slate-500">{detail}</p> : null}
+      </div>
     </div>
   );
 }

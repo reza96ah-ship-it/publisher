@@ -57,3 +57,4 @@ export function useMediaPreviewUrl(assetId?: number | null) {
   const previewUrls = useMediaPreviewUrls([assetId]);
   return assetId ? previewUrls[assetId] ?? "" : "";
 }
+
